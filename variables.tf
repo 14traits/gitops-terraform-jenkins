@@ -4,7 +4,7 @@ variable "count_num" {
 
 variable "key_name" {
   description = "Private key name to use with instance"
-  default     = "awsCredentials"
+  default     = "14traits_terraform"
 }
 
 variable "instance_type" {
