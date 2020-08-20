@@ -9,7 +9,7 @@ terraform {
 
 # Use AWS Terraform provider
 provider "aws" {
-  region = "var.region"
+  region = var.region
 }
 
 # Create VPC 
@@ -79,26 +79,29 @@ resource "aws_security_group" "sg_22" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  # Assign Public Key
-  resource "aws_key_pair" "ec2key" {
-    key_name   = "publicKey"
-    public_key = file(var.public_key_path)
+  tags = {
+    "Environment" = var.environment_tag
   }
+}
 
-  # Create EC2 instance
-  resource "aws_instance" "strikeInstance" {
-    ami                    = var.ami
-    count                  = var.count_num
-    key_name               = aws_key_pair.ec2key.key_name
-    subnet_id              = aws_subnet.subnet_public.id
-    vpc_security_group_ids = [aws_security_group.default.id]
-    source_dest_check      = false
-    instance_type          = var.instance_type
+# Assign Public Key
+resource "aws_key_pair" "ec2key" {
+  key_name   = "publicKey"
+  public_key = file(var.public_key_path)
+}
 
-    tags = {
-      Name = "var.enviroment_tag"
-    }
+
+# Create EC2 instance
+resource "aws_instance" "strikeInstance" {
+  ami                    = var.ami
+  count                  = var.count_num
+  key_name               = aws_key_pair.ec2key.key_name
+  subnet_id              = aws_subnet.subnet_public.id
+  vpc_security_group_ids = [aws_security_group.sg_22.id]
+  source_dest_check      = false
+  instance_type          = var.instance_type
+
+  tags = {
+    Name = "var.enviroment_tag"
   }
-
 }
